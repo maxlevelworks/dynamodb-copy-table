@@ -48,12 +48,13 @@ while 'LastEvaluatedKey' in src_response:
 
 print(f'Downloaded {len(old_items)} old items to copy to {dst_table}')
 
-for old_item in tqdm(old_items):
-    new_item = {hash_key: old_item[hash_key]}
-    if range_key is not None: new_item[range_key] = old_item[range_key]
-    for k, v in old_item.items():
-        if k not in (hash_key, range_key):
-            new_item[k] = v
-    _ = dst.put_item(Item=new_item)
+with dst.batch_writer() as writer:
+    for old_item in tqdm(old_items):
+        new_item = {hash_key: old_item[hash_key]}
+        if range_key is not None: new_item[range_key] = old_item[range_key]
+        for k, v in old_item.items():
+            if k not in (hash_key, range_key):
+                new_item[k] = v
+        writer.put_item(Item=new_item)
 
 print('Done.')
