@@ -20,8 +20,6 @@ The following environment variables can be used:
 Variable | Purpose
 --- | ---
 `AWS_DEFAULT_REGION` | Select the region (the default region is `eu-west-1`)
-`DISABLE_CREATION` | Disable the creation of a new table (Useful if the table already exists)
-`DISABLE_DATACOPY` | Disable the copying of data from source table to destination table
 
 ```shell
 $ AWS_DEFAULT_REGION=eu-west-1\
