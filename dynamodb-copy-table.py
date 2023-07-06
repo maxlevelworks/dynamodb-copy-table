@@ -3,6 +3,7 @@ import boto3
 import botocore
 import sys
 import os
+from tqdm import tqdm
 
 if len(sys.argv) != 3:
     print(f'Usage: {sys.argv[0]} <source_table_name> <destination_table_name>')
@@ -37,6 +38,7 @@ for schema in src.key_schema:
 # 2. Copy the items and add the items
 # Note: this is a very inefficient way of doing this 
 # (store all old items in memory, insert them one by one)
+print(f'Downloading items from source {src_table}')
 src_response = src.scan()
 old_items = src_response['Items']
 while 'LastEvaluatedKey' in src_response:
@@ -44,8 +46,9 @@ while 'LastEvaluatedKey' in src_response:
     src_response = src.scan(ExclusiveStartKey=src_response['LastEvaluatedKey'])
     old_items.extend(src_response['Items'])
 
-print(f'Scanned {len(old_items)} old items to copy to {dst_table}')
-for old_item in old_items:
+print(f'Downloaded {len(old_items)} old items to copy to {dst_table}')
+
+for old_item in tqdm(old_items):
     new_item = {hash_key: old_item[hash_key]}
     if range_key is not None: new_item[range_key] = old_item[range_key]
     for k, v in old_item.items():
